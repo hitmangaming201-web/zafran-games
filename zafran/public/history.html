@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Transaction History — ZafranGames</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#1a1f3c;color:#fff;font-family:'Segoe UI',sans-serif;min-height:100vh;padding-bottom:30px}
+.top-bar{background:#1e2547;padding:14px 16px;display:flex;align-items:center;gap:12px}
+.back-btn{font-size:20px;cursor:pointer;color:#a0aec0}
+.title{font-size:17px;font-weight:700}
+.filter-tabs{display:flex;gap:6px;padding:14px;overflow-x:auto;scrollbar-width:none}
+.filter-tabs::-webkit-scrollbar{display:none}
+.f-tab{background:#2a3060;border-radius:20px;padding:7px 16px;font-size:12px;cursor:pointer;font-weight:600;white-space:nowrap;border:2px solid transparent}
+.f-tab.active{background:#f5a623;color:#1a1f3c;border-color:#f5a623}
+.hist-list{padding:0 14px}
+.hist-item{background:#2a3060;border-radius:12px;padding:14px;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center}
+.hist-info h4{font-size:14px;font-weight:600}
+.hist-info p{font-size:11px;color:#a0aec0;margin-top:3px}
+.hist-amt{text-align:right}
+.hist-amt .amount{font-size:16px;font-weight:700}
+.amount-deposit{color:#2d8b2d}
+.amount-withdraw{color:#cc3333}
+.hist-amt .status{font-size:11px;margin-top:3px}
+.status-pending{color:#f5a623}
+.status-approved{color:#2d8b2d}
+.status-rejected{color:#cc3333}
+.empty-state{text-align:center;padding:50px 20px;color:#606890}
+.empty-icon{font-size:48px;margin-bottom:12px}
+.type-badge{display:inline-block;padding:2px 8px;border-radius:4px;font-size:10px;font-weight:700;margin-top:4px}
+.badge-deposit{background:#1a3010;color:#2d8b2d}
+.badge-withdraw{background:#3a1010;color:#cc3333}
+</style>
+</head>
+<body>
+<div class="top-bar">
+  <span class="back-btn" onclick="history.back()">←</span>
+  <span class="title">Transaction History</span>
+</div>
+
+<div class="filter-tabs">
+  <div class="f-tab active" onclick="filterTx('all',this)">All</div>
+  <div class="f-tab" onclick="filterTx('deposit',this)">Deposits</div>
+  <div class="f-tab" onclick="filterTx('withdraw',this)">Withdrawals</div>
+  <div class="f-tab" onclick="filterTx('pending',this)">Pending</div>
+  <div class="f-tab" onclick="filterTx('approved',this)">Completed</div>
+</div>
+
+<div class="hist-list" id="histList">
+  <div class="empty-state"><div class="empty-icon">📋</div><p>Loading...</p></div>
+</div>
+
+<script>
+const token=localStorage.getItem('zg_token');
+if(!token){window.location.href='login.html';}
+let allTx=[];
+
+async function loadHistory(){
+  try{
+    const r=await fetch('/api/payment/history',{headers:{'Authorization':'Bearer '+token}});
+    allTx=await r.json();
+    renderTx('all');
+  }catch(e){document.getElementById('histList').innerHTML='<div class="empty-state"><div class="empty-icon">❌</div><p>Failed to load</p></div>';}
+}
+function filterTx(f,el){
+  document.querySelectorAll('.f-tab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  renderTx(f);
+}
+function renderTx(f){
+  let list=allTx;
+  if(f==='deposit')list=allTx.filter(t=>t.type==='deposit');
+  else if(f==='withdraw')list=allTx.filter(t=>t.type==='withdraw');
+  else if(f==='pending')list=allTx.filter(t=>t.status==='pending');
+  else if(f==='approved')list=allTx.filter(t=>t.status==='approved');
+  const el=document.getElementById('histList');
+  if(!list.length){el.innerHTML='<div class="empty-state"><div class="empty-icon">📋</div><p>No data</p></div>';return;}
+  el.innerHTML=list.map(t=>`
+    <div class="hist-item">
+      <div class="hist-info">
+        <h4>${t.type==='deposit'?'Deposit':'Withdrawal'}</h4>
+        <p>${new Date(t.timestamp).toLocaleString()}</p>
+        ${t.upiId?`<p>${t.upiId}</p>`:''}
+        ${t.utr?`<p>UTR: ${t.utr}</p>`:''}
+        <div><span class="type-badge badge-${t.type}">${t.type.toUpperCase()}</span></div>
+        <p style="font-size:10px;color:#606890;margin-top:2px">ID: ${t.txId}</p>
+      </div>
+      <div class="hist-amt">
+        <div class="amount ${t.type==='deposit'?'amount-deposit':'amount-withdraw'}">${t.type==='deposit'?'+':'-'}₹${t.amount.toFixed(2)}</div>
+        <div class="status status-${t.status}">${t.status.charAt(0).toUpperCase()+t.status.slice(1)}</div>
+      </div>
+    </div>`).join('');
+}
+loadHistory();
+</script>
+</body>
+</html>

@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Login — ZafranGames</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#1a1f3c;color:#fff;font-family:'Segoe UI',sans-serif;min-height:100vh}
+.top-bar{background:#1e2547;padding:14px 16px;display:flex;align-items:center;gap:12px}
+.back-btn{font-size:20px;cursor:pointer;color:#a0aec0}
+.logo{font-size:20px;font-weight:800;color:#f5a623}
+.logo span{color:#fff}
+.hero{background:linear-gradient(135deg,#1e2547,#2d3875);padding:30px 20px 20px;text-align:center}
+.hero h1{font-size:28px;font-weight:800;margin-bottom:4px}
+.hero p{color:#a0aec0;font-size:13px}
+.tabs{display:flex;background:#2a3060;margin:16px;border-radius:12px;padding:4px;gap:4px}
+.tab{flex:1;padding:10px;text-align:center;border-radius:8px;cursor:pointer;font-weight:600;font-size:14px;color:#a0aec0;transition:all .2s}
+.tab.active{background:#f5a623;color:#1a1f3c}
+.form-wrap{padding:0 16px}
+.input-group{background:#2a3060;border-radius:12px;padding:14px 16px;margin-bottom:12px;display:flex;align-items:center;gap:10px}
+.input-group .icon{font-size:18px;color:#a0aec0}
+.input-group input{background:transparent;border:none;outline:none;color:#fff;font-size:15px;flex:1}
+.input-group input::placeholder{color:#606890}
+.captcha-wrap{background:#2a3060;border-radius:12px;padding:16px;margin-bottom:12px}
+.captcha-title{font-size:13px;color:#a0aec0;margin-bottom:10px}
+.captcha-puzzle{position:relative;border-radius:8px;overflow:hidden;height:140px;background:#1a2040;margin-bottom:10px}
+.captcha-bg{width:100%;height:140px;background:linear-gradient(135deg,#1a3a6a,#2d5a8b);display:flex;align-items:center;justify-content:center;position:relative}
+.captcha-piece{position:absolute;width:50px;height:50px;background:rgba(245,166,35,0.8);border:2px solid #f5a623;border-radius:6px;cursor:grab;user-select:none}
+.captcha-hole{position:absolute;width:50px;height:50px;border:2px dashed #f5a623;border-radius:6px;background:rgba(0,0,0,0.3)}
+.slide-bar{background:#1a2040;border-radius:8px;padding:12px 16px;display:flex;align-items:center;gap:10px;cursor:pointer}
+.slide-track{flex:1;background:#2a3060;height:4px;border-radius:2px;position:relative}
+.slide-thumb{width:36px;height:36px;background:#f5a623;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;cursor:grab;position:absolute;top:50%;transform:translateY(-50%);left:0;transition:left .1s}
+.slide-hint{color:#606890;font-size:12px}
+.captcha-verified{display:none;background:#1a3a1a;border:1px solid #2d8b2d;border-radius:8px;padding:10px 14px;color:#2d8b2d;font-size:13px;font-weight:600;align-items:center;gap:8px}
+.btn-login{width:100%;background:#f5a623;color:#1a1f3c;border:none;border-radius:24px;padding:14px;font-size:16px;font-weight:800;cursor:pointer;margin-bottom:16px;transition:opacity .2s}
+.btn-login:disabled{opacity:0.6;cursor:not-allowed}
+.bottom-link{text-align:center;color:#a0aec0;font-size:13px}
+.bottom-link a{color:#f5a623;font-weight:700;text-decoration:none}
+.error-msg{background:#3a1a1a;border:1px solid #cc3333;border-radius:8px;padding:10px 14px;color:#ff6666;font-size:13px;margin-bottom:12px;display:none}
+.bonus-note{background:#1a3010;border:1px solid #2d7a10;border-radius:10px;padding:12px;margin-bottom:14px;text-align:center;color:#7dda3a;font-size:13px}
+</style>
+</head>
+<body>
+<div class="top-bar">
+  <span class="back-btn" onclick="history.back()">←</span>
+  <div class="logo">Zafran<span>Games</span></div>
+</div>
+<div class="hero">
+  <h1>Welcome Back!</h1>
+  <p>Login to access your account</p>
+</div>
+
+<div style="padding:16px 16px 0">
+  <div class="bonus-note">🎁 New user? Register & get <strong>₹40 FREE</strong> bonus instantly!</div>
+</div>
+
+<div class="tabs">
+  <div class="tab active" onclick="switchTab('phone')">📱 Phone Number</div>
+  <div class="tab" onclick="switchTab('email')">✉️ Email</div>
+</div>
+
+<div class="form-wrap">
+  <div id="phoneTab">
+    <div class="input-group">
+      <span class="icon">🇮🇳</span>
+      <span style="color:#a0aec0;font-size:14px">+91</span>
+      <input type="tel" id="phoneInput" placeholder="Enter phone number" maxlength="10">
+    </div>
+  </div>
+  <div id="emailTab" style="display:none">
+    <div class="input-group">
+      <span class="icon">✉️</span>
+      <input type="email" id="emailInput" placeholder="Enter email address">
+    </div>
+  </div>
+  <div class="input-group">
+    <span class="icon">🔒</span>
+    <input type="password" id="passInput" placeholder="Enter password">
+    <span style="cursor:pointer;color:#a0aec0" onclick="togglePass()">👁</span>
+  </div>
+
+  <div class="captcha-wrap">
+    <div class="captcha-title">🛡️ Security Verification — Slide to complete</div>
+    <div class="captcha-puzzle">
+      <div class="captcha-bg">
+        <span style="font-size:40px;opacity:0.3">🌸</span>
+        <div class="captcha-hole" id="captchaHole" style="right:60px;top:45px"></div>
+        <div class="captcha-piece" id="captchaPiece" style="left:10px;top:45px">🧩</div>
+      </div>
+    </div>
+    <div class="slide-bar" id="slideBar">
+      <div class="slide-track" id="slideTrack">
+        <div class="slide-thumb" id="slideThumb">»</div>
+      </div>
+      <span class="slide-hint" id="slideHint">Hold and slide to verify</span>
+    </div>
+    <div class="captcha-verified" id="captchaVerified">✅ Verification successful</div>
+  </div>
+
+  <div class="error-msg" id="errorMsg"></div>
+  <button class="btn-login" id="loginBtn" onclick="doLogin()" disabled>Log In</button>
+  <div class="bottom-link">Don't have an account? <a href="register.html">Register Now</a></div>
+  <div style="height:20px"></div>
+</div>
+
+<script>
+let captchaDone=false,isDragging=false,startX=0;
+const thumb=document.getElementById('slideThumb');
+const track=document.getElementById('slideTrack');
+const piece=document.getElementById('captchaPiece');
+
+function switchTab(t){
+  document.querySelectorAll('.tab').forEach((el,i)=>{
+    el.classList.toggle('active',(t==='phone'&&i===0)||(t==='email'&&i===1));
+  });
+  document.getElementById('phoneTab').style.display=t==='phone'?'block':'none';
+  document.getElementById('emailTab').style.display=t==='email'?'block':'none';
+}
+function togglePass(){
+  const p=document.getElementById('passInput');
+  p.type=p.type==='password'?'text':'password';
+}
+
+// Captcha drag
+thumb.addEventListener('mousedown',startDrag);
+thumb.addEventListener('touchstart',startDrag,{passive:true});
+
+function startDrag(e){
+  isDragging=true;
+  startX=e.clientX||e.touches[0].clientX;
+  document.addEventListener('mousemove',onDrag);
+  document.addEventListener('touchmove',onDrag,{passive:true});
+  document.addEventListener('mouseup',endDrag);
+  document.addEventListener('touchend',endDrag);
+}
+function onDrag(e){
+  if(!isDragging)return;
+  const x=e.clientX||e.touches[0].clientX;
+  const tw=track.offsetWidth-36;
+  const diff=Math.min(Math.max(0,x-track.getBoundingClientRect().left-18),tw);
+  thumb.style.left=diff+'px';
+  piece.style.left=(10+diff*(150/tw))+'px';
+  if(diff>=tw-10){
+    captchaDone=true;
+    isDragging=false;
+    thumb.style.background='#2d8b2d';
+    thumb.textContent='✓';
+    document.getElementById('slideHint').style.display='none';
+    document.getElementById('captchaVerified').style.display='flex';
+    document.getElementById('loginBtn').disabled=false;
+  }
+}
+function endDrag(){isDragging=false;}
+
+async function doLogin(){
+  if(!captchaDone){alert('Please complete captcha');return;}
+  const phone=document.getElementById('phoneInput').value.trim();
+  const email=document.getElementById('emailInput').value.trim();
+  const pass=document.getElementById('passInput').value;
+  if(!pass){showErr('Please enter password');return;}
+  document.getElementById('loginBtn').disabled=true;
+  document.getElementById('loginBtn').textContent='Logging in...';
+  try{
+    const body={password:pass};
+    if(phone)body.phone='+91'+phone; else body.email=email;
+    const r=await fetch('/api/auth/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+    const d=await r.json();
+    if(!r.ok){showErr(d.msg||'Login failed');document.getElementById('loginBtn').disabled=false;document.getElementById('loginBtn').textContent='Log In';return;}
+    localStorage.setItem('zg_token',d.token);
+    localStorage.setItem('zg_user',JSON.stringify({uid:d.uid,balance:d.balance,username:d.username,totalDeposited:d.totalDeposited||0}));
+    window.location.href='index.html';
+  }catch(e){showErr('Network error');document.getElementById('loginBtn').disabled=false;document.getElementById('loginBtn').textContent='Log In';}
+}
+function showErr(m){const el=document.getElementById('errorMsg');el.textContent=m;el.style.display='block';}
+</script>
+</body>
+</html>

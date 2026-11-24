@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Wingo — ZafranGames</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div class="navbar">
+  <a href="index.html" style="color:var(--text2);text-decoration:none;font-size:20px;">←</a>
+  <div style="font-weight:900;font-size:16px;letter-spacing:1px;">🎯 WINGO</div>
+  <div id="navBal" style="color:var(--gold);font-weight:700;font-size:13px;"></div>
+</div>
+<div class="page">
+  <div style="text-align:center;padding:14px 0;">
+    <div style="font-size:11px;color:var(--text2);text-transform:uppercase;letter-spacing:1px;font-weight:600;margin-bottom:4px;">Time Remaining</div>
+    <div id="timer" style="font-size:52px;font-weight:900;color:var(--gold);letter-spacing:-2px;line-height:1;">30</div>
+    <div id="roundId" style="font-size:11px;color:var(--text2);margin-top:4px;"></div>
+  </div>
+
+  <div class="wingo-result" id="resultBall" style="background:linear-gradient(135deg,#1a1a2e,#333);font-size:36px;">?</div>
+
+  <div class="card">
+    <div style="font-size:11px;color:var(--text2);text-transform:uppercase;letter-spacing:1px;font-weight:600;margin-bottom:10px;">Pick Color</div>
+    <div style="display:flex;gap:8px;margin-bottom:14px;">
+      <button class="color-btn green" onclick="selectBet('green')">GREEN<br><span style="font-size:10px;opacity:0.8;">1.95×</span></button>
+      <button class="color-btn violet" onclick="selectBet('violet')">VIOLET<br><span style="font-size:10px;opacity:0.8;">4.5×</span></button>
+      <button class="color-btn red" onclick="selectBet('red')">RED<br><span style="font-size:10px;opacity:0.8;">1.95×</span></button>
+    </div>
+    <div style="font-size:11px;color:var(--text2);text-transform:uppercase;letter-spacing:1px;font-weight:600;margin-bottom:10px;">Pick Number (9×)</div>
+    <div id="numGrid" style="display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin-bottom:14px;"></div>
+    <div style="font-size:11px;color:var(--text2);text-transform:uppercase;letter-spacing:1px;font-weight:600;margin-bottom:8px;">Bet Amount</div>
+    <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px;">
+      <button onclick="document.getElementById('betAmt').value=10" style="background:rgba(255,255,255,0.05);border:1px solid var(--border);color:var(--text2);padding:5px 12px;border-radius:16px;cursor:pointer;font-size:12px;font-weight:600;">₹10</button>
+      <button onclick="document.getElementById('betAmt').value=50" style="background:rgba(255,255,255,0.05);border:1px solid var(--border);color:var(--text2);padding:5px 12px;border-radius:16px;cursor:pointer;font-size:12px;font-weight:600;">₹50</button>
+      <button onclick="document.getElementById('betAmt').value=100" style="background:rgba(255,255,255,0.05);border:1px solid var(--border);color:var(--text2);padding:5px 12px;border-radius:16px;cursor:pointer;font-size:12px;font-weight:600;">₹100</button>
+      <button onclick="document.getElementById('betAmt').value=500" style="background:rgba(255,255,255,0.05);border:1px solid var(--border);color:var(--text2);padding:5px 12px;border-radius:16px;cursor:pointer;font-size:12px;font-weight:600;">₹500</button>
+    </div>
+    <input type="number" class="input-field" id="betAmt" value="10" min="1" style="margin-bottom:8px;">
+    <div id="selectedBet" style="color:var(--gold);font-size:13px;font-weight:700;text-align:center;min-height:18px;margin-bottom:8px;"></div>
+    <div id="alertBox" style="margin-bottom:8px;"></div>
+    <button class="btn btn-primary" id="betBtn" onclick="placeBet()">CONFIRM BET</button>
+  </div>
+
+  <div class="card" style="margin-top:8px;">
+    <div style="font-size:11px;color:var(--text2);text-transform:uppercase;letter-spacing:1px;font-weight:600;margin-bottom:8px;">Recent Results</div>
+    <div id="historyGrid" style="display:flex;flex-wrap:wrap;gap:6px;"></div>
+  </div>
+</div>
+<script src="js/wingo.js"></script>
+</body>
+</html>

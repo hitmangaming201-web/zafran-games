@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Deposit — ZafranGames</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div class="navbar">
+  <a href="account.html" style="color:var(--text2);text-decoration:none;font-size:20px;">←</a>
+  <div style="font-weight:900;font-size:16px;">💰 Deposit</div>
+  <a href="#" style="color:var(--text2);font-size:12px;text-decoration:none;">History</a>
+</div>
+<div class="page" id="mainForm">
+  <div style="font-size:11px;color:var(--text2);text-transform:uppercase;letter-spacing:1px;font-weight:600;margin-bottom:10px;">Payment Method</div>
+  <div class="game-grid" style="margin-bottom:16px;">
+    <div class="game-card" onclick="selectMethod('UPI-QR',this)" id="m-UPI-QR" style="border:1px solid var(--accent);">
+      <div class="game-card-body" style="padding:14px;"><div style="font-size:26px;margin-bottom:4px;">📱</div><div style="font-size:12px;font-weight:700;">UPI-QR</div><span class="rtp-badge" style="margin-top:4px;display:inline-block;">+3% Bonus</span></div>
+    </div>
+    <div class="game-card" onclick="selectMethod('PAYTM',this)" id="m-PAYTM">
+      <div class="game-card-body" style="padding:14px;"><div style="font-size:26px;margin-bottom:4px;">💳</div><div style="font-size:12px;font-weight:700;">Paytm QR</div><span class="rtp-badge" style="margin-top:4px;display:inline-block;">+3% Bonus</span></div>
+    </div>
+    <div class="game-card" onclick="selectMethod('USDT-TRC20',this)" id="m-USDT-TRC20">
+      <div class="game-card-body" style="padding:14px;"><div style="font-size:26px;margin-bottom:4px;">💚</div><div style="font-size:12px;font-weight:700;">USDT TRC20</div><span class="rtp-badge" style="margin-top:4px;display:inline-block;">+3% Bonus</span></div>
+    </div>
+    <div class="game-card" onclick="selectMethod('PHONEPAY',this)" id="m-PHONEPAY">
+      <div class="game-card-body" style="padding:14px;"><div style="font-size:26px;margin-bottom:4px;">📲</div><div style="font-size:12px;font-weight:700;">PhonePe QR</div><span class="rtp-badge" style="margin-top:4px;display:inline-block;">+3% Bonus</span></div>
+    </div>
+  </div>
+
+  <div style="font-size:11px;color:var(--text2);text-transform:uppercase;letter-spacing:1px;font-weight:600;margin-bottom:10px;">Select Amount</div>
+  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px;">
+    <button onclick="setAmt(100)" class="btn btn-outline" style="padding:9px;border-radius:10px;font-size:13px;">₹100</button>
+    <button onclick="setAmt(300)" class="btn btn-outline" style="padding:9px;border-radius:10px;font-size:13px;">₹300</button>
+    <button onclick="setAmt(500)" class="btn btn-outline" style="padding:9px;border-radius:10px;font-size:13px;">₹500</button>
+    <button onclick="setAmt(700)" class="btn btn-outline" style="padding:9px;border-radius:10px;font-size:13px;">₹700</button>
+    <button onclick="setAmt(1000)" class="btn btn-outline" style="padding:9px;border-radius:10px;font-size:13px;">₹1,000</button>
+    <button onclick="setAmt(2000)" class="btn btn-outline" style="padding:9px;border-radius:10px;font-size:13px;">₹2,000</button>
+    <button onclick="setAmt(3000)" class="btn btn-outline" style="padding:9px;border-radius:10px;font-size:13px;">₹3,000</button>
+    <button onclick="setAmt(5000)" class="btn btn-outline" style="padding:9px;border-radius:10px;font-size:13px;">₹5,000</button>
+    <button onclick="setAmt(10000)" class="btn btn-outline" style="padding:9px;border-radius:10px;font-size:13px;">₹10,000</button>
+  </div>
+  <div class="input-group">
+    <label>Custom Amount (₹100 – ₹50,000)</label>
+    <input type="number" class="input-field" id="depositAmt" placeholder="Enter amount" min="100" max="50000">
+  </div>
+  <div id="alertBox1"></div>
+  <button class="btn btn-primary" onclick="initiateDeposit()">Proceed to Pay</button>
+</div>
+
+<!-- QR Section -->
+<div id="qrSection" style="display:none;" class="page">
+  <div class="card" style="text-align:center;">
+    <div style="font-size:11px;color:var(--text2);text-transform:uppercase;letter-spacing:1px;font-weight:600;margin-bottom:12px;">Scan & Pay</div>
+    <div style="display:flex;gap:8px;justify-content:center;margin-bottom:16px;">
+      <span style="background:rgba(255,255,255,0.05);border:1px solid var(--border);padding:6px 14px;border-radius:20px;font-size:12px;font-weight:600;">Paytm</span>
+      <span style="background:rgba(255,255,255,0.05);border:1px solid var(--border);padding:6px 14px;border-radius:20px;font-size:12px;font-weight:600;">PhonePe</span>
+      <span style="background:rgba(255,255,255,0.05);border:1px solid var(--border);padding:6px 14px;border-radius:20px;font-size:12px;font-weight:600;">GPay</span>
+    </div>
+    <div style="background:white;border-radius:14px;padding:12px;display:inline-block;margin-bottom:12px;">
+      <img id="qrImg" style="width:180px;height:180px;display:block;" alt="QR">
+    </div>
+    <div style="font-size:13px;color:var(--text2);margin-bottom:4px;">UPI ID</div>
+    <div id="upiIdDisplay" style="color:var(--gold);font-weight:700;font-size:14px;margin-bottom:16px;"></div>
+    <div style="font-size:11px;color:var(--text2);text-align:left;margin-bottom:6px;text-transform:uppercase;letter-spacing:0.5px;font-weight:600;">• Enter UTR Number (12 digits)</div>
+    <div style="background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.2);border-radius:8px;padding:8px 12px;font-size:12px;color:var(--red);margin-bottom:10px;text-align:left;">⚠️ UTR is mandatory — without it your deposit will fail</div>
+    <div style="display:flex;gap:8px;margin-bottom:16px;">
+      <input type="text" class="input-field" id="utrInput" placeholder="12-digit UTR here" maxlength="12" oninput="checkUTR()" style="flex:1;">
+      <button onclick="pasteUTR()" style="background:rgba(255,255,255,0.05);border:1px solid var(--border);color:var(--text2);padding:11px 14px;border-radius:10px;cursor:pointer;font-size:13px;font-weight:600;">Paste</button>
+    </div>
+    <div style="display:flex;gap:10px;">
+      <button class="btn btn-red-out" onclick="cancelDeposit()" style="flex:1;">Cancel</button>
+      <button class="btn btn-primary" id="submitBtn" onclick="submitDeposit()" disabled style="flex:1;opacity:0.4;">Submit</button>
+    </div>
+  </div>
+</div>
+
+<script>
+let selectedMethod='UPI-QR',currentTxId=null;
+function selectMethod(m,el){
+  document.querySelectorAll('.game-card').forEach(c=>c.style.border='1px solid rgba(255,255,255,0.07)');
+  el.style.border='1px solid var(--accent)';selectedMethod=m;
+}
+function setAmt(v){document.getElementById('depositAmt').value=v;}
+function showAlert1(msg,type='error'){document.getElementById('alertBox1').innerHTML=`<div class="alert alert-${type}">${msg}</div>`;}
+async function initiateDeposit(){
+  const amount=parseFloat(document.getElementById('depositAmt').value);
+  if(!amount||amount<100){showAlert1('Minimum deposit ₹100');return;}
+  const token=localStorage.getItem('token');
+  if(!token){window.location.href='login.html';return;}
+  try{
+    const res=await fetch('/api/payment/deposit/initiate',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+token},body:JSON.stringify({amount,method:selectedMethod})});
+    const data=await res.json();
+    if(!res.ok){showAlert1(data.msg);return;}
+    currentTxId=data.txId;
+    document.getElementById('qrImg').src=data.qrDataUrl;
+    document.getElementById('upiIdDisplay').textContent=data.upiId;
+    document.getElementById('qrSection').style.display='block';
+    document.getElementById('mainForm').style.display='none';
+  }catch{showAlert1('Server error');}
+}
+function checkUTR(){
+  const v=document.getElementById('utrInput').value;
+  const btn=document.getElementById('submitBtn');
+  btn.disabled=v.length!==12;btn.style.opacity=v.length===12?'1':'0.4';
+}
+async function pasteUTR(){
+  try{const t=await navigator.clipboard.readText();document.getElementById('utrInput').value=t.replace(/\D/g,'').substring(0,12);checkUTR();}
+  catch{document.getElementById('utrInput').focus();alert('Tap input field and paste manually');}
+}
+async function submitDeposit(){
+  const utr=document.getElementById('utrInput').value;
+  const token=localStorage.getItem('token');
+  try{
+    await fetch('/api/payment/deposit/utr',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+token},body:JSON.stringify({txId:currentTxId,utr})});
+    alert('✅ UTR submitted! Balance will be credited after verification.');
+    window.location.href='account.html';
+  }catch{alert('Error submitting. Try again.');}
+}
+function cancelDeposit(){
+  document.getElementById('qrSection').style.display='none';
+  document.getElementById('mainForm').style.display='block';
+}
+</script>
+</body>
+</html>

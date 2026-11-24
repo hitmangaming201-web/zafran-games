@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Withdraw — ZafranGames</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#1a1f3c;color:#fff;font-family:'Segoe UI',sans-serif;min-height:100vh;padding-bottom:30px}
+.top-bar{background:#1e2547;padding:14px 16px;display:flex;align-items:center;justify-content:space-between}
+.back-btn{font-size:20px;cursor:pointer;color:#a0aec0}
+.title{font-size:17px;font-weight:700}
+.hist-link{color:#f5a623;font-size:13px;cursor:pointer;text-decoration:none}
+.bal-card{background:linear-gradient(135deg,#2d3875,#1e2547);margin:14px;border-radius:16px;padding:20px}
+.bal-label{font-size:12px;color:#a0aec0;margin-bottom:4px;display:flex;align-items:center;gap:6px}
+.bal-amount{font-size:32px;font-weight:800;color:#f5a623}
+.refresh-icon{cursor:pointer;font-size:14px}
+.method-tabs{display:flex;gap:8px;padding:0 14px 14px}
+.method-btn{flex:1;background:#2a3060;border:2px solid transparent;border-radius:12px;padding:12px 8px;text-align:center;cursor:pointer;font-size:13px;font-weight:600;transition:all .2s}
+.method-btn.active{background:#1a2547;border-color:#f5a623;color:#f5a623}
+.method-icon{font-size:20px;margin-bottom:4px}
+.form-wrap{padding:0 14px}
+.input-label{font-size:12px;color:#a0aec0;margin-bottom:6px;font-weight:600}
+.input-group{background:#2a3060;border-radius:12px;padding:14px 16px;margin-bottom:14px;display:flex;align-items:center;gap:10px}
+.input-group input{background:transparent;border:none;outline:none;color:#fff;font-size:15px;flex:1}
+.input-group input::placeholder{color:#606890}
+.amounts-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px}
+.amt-chip{background:#2a3060;border:2px solid transparent;border-radius:10px;padding:12px 8px;text-align:center;cursor:pointer;font-size:14px;font-weight:600;transition:all .2s}
+.amt-chip.active,.amt-chip:hover{border-color:#f5a623;color:#f5a623}
+.info-box{background:#1a2040;border:1px solid #2a3060;border-radius:10px;padding:12px 14px;margin-bottom:14px;font-size:12px;color:#a0aec0;line-height:1.6}
+.info-box span{color:#f5a623;font-weight:700}
+.btn-withdraw{width:100%;background:#f5a623;color:#1a1f3c;border:none;border-radius:24px;padding:14px;font-size:16px;font-weight:800;cursor:pointer;margin-bottom:8px}
+.btn-withdraw:disabled{opacity:0.5;cursor:not-allowed}
+.error-msg{background:#3a1a1a;border:1px solid #cc3333;border-radius:8px;padding:10px 14px;color:#ff6666;font-size:13px;margin-bottom:12px;display:none}
+.success-msg{background:#1a3010;border:1px solid #2d7a10;border-radius:8px;padding:10px 14px;color:#7dda3a;font-size:13px;margin-bottom:12px;display:none;text-align:center}
+.hist-section{padding:14px}
+.hist-title{font-size:15px;font-weight:700;margin-bottom:10px}
+.hist-tabs{display:flex;gap:6px;margin-bottom:12px}
+.hist-tab{background:#2a3060;border-radius:20px;padding:6px 14px;font-size:12px;cursor:pointer;font-weight:600}
+.hist-tab.active{background:#f5a623;color:#1a1f3c}
+.hist-item{background:#2a3060;border-radius:12px;padding:14px;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center}
+.hist-info h4{font-size:14px;font-weight:600}
+.hist-info p{font-size:11px;color:#a0aec0;margin-top:3px}
+.hist-amt{text-align:right}
+.hist-amt .amount{font-size:16px;font-weight:700;color:#ff6666}
+.hist-amt .status{font-size:11px;color:#a0aec0;margin-top:3px}
+.status-pending{color:#f5a623!important}
+.status-approved{color:#2d8b2d!important}
+.status-rejected{color:#cc3333!important}
+.empty-state{text-align:center;padding:30px;color:#606890}
+</style>
+</head>
+<body>
+<div class="top-bar">
+  <span class="back-btn" onclick="history.back()">←</span>
+  <span class="title">Withdraw</span>
+  <a href="#history" class="hist-link" onclick="scrollToHistory()">Withdrawal history</a>
+</div>
+
+<div class="bal-card">
+  <div class="bal-label">💰 Available balance <span class="refresh-icon" onclick="loadBal()">🔄</span></div>
+  <div class="bal-amount">₹<span id="balAmt">0.00</span></div>
+  <div style="color:#a0aec0;font-size:11px;margin-top:8px">Deposited: ₹<span id="depAmt">0.00</span> • Min withdrawal: ₹100</div>
+</div>
+
+<div class="method-tabs">
+  <div class="method-btn active" onclick="setMethod('upi',this)"><div class="method-icon">📱</div>UPI</div>
+  <div class="method-btn" onclick="setMethod('bank',this)"><div class="method-icon">🏦</div>BANK CARD</div>
+  <div class="method-btn" onclick="setMethod('usdt',this)"><div class="method-icon">💲</div>USDT</div>
+</div>
+
+<div class="form-wrap">
+  <div id="upiForm">
+    <div class="input-label">UPI ID</div>
+    <div class="input-group"><span>📱</span><input type="text" id="upiInput" placeholder="Enter your UPI ID (e.g. name@upi)"></div>
+  </div>
+  <div id="bankForm" style="display:none">
+    <div class="input-label">Bank Account Number</div>
+    <div class="input-group"><span>🏦</span><input type="text" id="bankInput" placeholder="Enter bank account number"></div>
+  </div>
+  <div id="usdtForm" style="display:none">
+    <div class="input-label">USDT TRC20 Address</div>
+    <div class="input-group"><span>💲</span><input type="text" id="usdtInput" placeholder="Enter TRC20 wallet address"></div>
+  </div>
+
+  <div class="input-label">Withdrawal Amount</div>
+  <div class="amounts-grid">
+    <div class="amt-chip" onclick="setAmt(110,this)">₹110</div>
+    <div class="amt-chip" onclick="setAmt(300,this)">₹300</div>
+    <div class="amt-chip" onclick="setAmt(500,this)">₹500</div>
+    <div class="amt-chip" onclick="setAmt(2000,this)">₹2K</div>
+    <div class="amt-chip" onclick="setAmt(3000,this)">₹3K</div>
+    <div class="amt-chip" onclick="setAmt(5000,this)">₹5K</div>
+  </div>
+  <div class="input-group"><span>₹</span><input type="number" id="amtInput" placeholder="Or enter custom amount" min="100"></div>
+
+  <div class="input-label">Withdrawal Password</div>
+  <div class="input-group">
+    <span>🔒</span>
+    <input type="password" id="wdPassInput" placeholder="Enter your account password">
+    <span style="cursor:pointer;color:#a0aec0" onclick="toggleWdPass()">👁</span>
+  </div>
+
+  <div class="info-box">
+    ⚠️ <span>Requirements:</span><br>
+    • Minimum deposit of <span>₹100</span> required before withdrawal<br>
+    • Minimum withdrawal amount: <span>₹100</span><br>
+    • Withdrawals processed within 24 hours<br>
+    • Bonus balance not withdrawable directly
+  </div>
+
+  <div class="error-msg" id="errorMsg"></div>
+  <div class="success-msg" id="successMsg"></div>
+  <button class="btn-withdraw" id="wdBtn" onclick="doWithdraw()">Submit Withdrawal</button>
+</div>
+
+<div class="hist-section" id="history">
+  <div class="hist-title">Withdrawal History</div>
+  <div class="hist-tabs">
+    <div class="hist-tab active">All</div>
+    <div class="hist-tab">Bank Card</div>
+    <div class="hist-tab">UPI</div>
+  </div>
+  <div id="histList"><div class="empty-state">📋 No withdrawal history</div></div>
+</div>
+
+<script>
+let curMethod='upi',selAmt=0;
+const token=localStorage.getItem('zg_token');
+if(!token){window.location.href='login.html';}
+
+function loadBal(){
+  fetch('/api/auth/profile',{headers:{'Authorization':'Bearer '+token}})
+    .then(r=>r.json()).then(u=>{
+      document.getElementById('balAmt').textContent=parseFloat(u.balance||0).toFixed(2);
+      document.getElementById('depAmt').textContent=parseFloat(u.totalDeposited||0).toFixed(2);
+    });
+}
+loadBal();
+loadHistory();
+
+function setMethod(m,el){
+  curMethod=m;
+  document.querySelectorAll('.method-btn').forEach(b=>b.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('upiForm').style.display=m==='upi'?'block':'none';
+  document.getElementById('bankForm').style.display=m==='bank'?'block':'none';
+  document.getElementById('usdtForm').style.display=m==='usdt'?'block':'none';
+}
+function setAmt(a,el){
+  selAmt=a;
+  document.querySelectorAll('.amt-chip').forEach(c=>c.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('amtInput').value=a;
+}
+function toggleWdPass(){const p=document.getElementById('wdPassInput');p.type=p.type==='password'?'text':'password';}
+function scrollToHistory(){document.getElementById('history').scrollIntoView({behavior:'smooth'});}
+
+async function doWithdraw(){
+  const amt=parseFloat(document.getElementById('amtInput').value)||selAmt;
+  const pass=document.getElementById('wdPassInput').value;
+  const upi=document.getElementById('upiInput').value.trim();
+  const bank=document.getElementById('bankInput').value.trim();
+  if(!amt||amt<100){showErr('Minimum withdrawal is ₹100');return;}
+  if(!pass){showErr('Enter your account password');return;}
+  if(curMethod==='upi'&&!upi){showErr('Enter UPI ID');return;}
+  if(curMethod==='bank'&&!bank){showErr('Enter bank account number');return;}
+  document.getElementById('wdBtn').disabled=true;
+  document.getElementById('wdBtn').textContent='Processing...';
+  try{
+    const body={amount:amt,password:pass,method:curMethod};
+    if(curMethod==='upi')body.upiId=upi;
+    if(curMethod==='bank')body.bankCard=bank;
+    const r=await fetch('/api/payment/withdraw',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+token},body:JSON.stringify(body)});
+    const d=await r.json();
+    if(!r.ok){showErr(d.msg||'Withdrawal failed');document.getElementById('wdBtn').disabled=false;document.getElementById('wdBtn').textContent='Submit Withdrawal';return;}
+    document.getElementById('successMsg').textContent='✅ Withdrawal request submitted! ID: '+d.txId;
+    document.getElementById('successMsg').style.display='block';
+    document.getElementById('errorMsg').style.display='none';
+    loadBal();loadHistory();
+    document.getElementById('wdBtn').textContent='Submit Withdrawal';
+    document.getElementById('wdBtn').disabled=false;
+  }catch(e){showErr('Network error');document.getElementById('wdBtn').disabled=false;document.getElementById('wdBtn').textContent='Submit Withdrawal';}
+}
+
+async function loadHistory(){
+  try{
+    const r=await fetch('/api/payment/history',{headers:{'Authorization':'Bearer '+token}});
+    const data=await r.json();
+    const wd=data.filter(t=>t.type==='withdraw');
+    const el=document.getElementById('histList');
+    if(!wd.length){el.innerHTML='<div class="empty-state">📋 No withdrawal history</div>';return;}
+    el.innerHTML=wd.map(t=>`
+      <div class="hist-item">
+        <div class="hist-info">
+          <h4>${t.method?.toUpperCase()||'UPI'} Withdrawal</h4>
+          <p>${new Date(t.timestamp).toLocaleString()}</p>
+          ${t.upiId?`<p style="color:#a0aec0">${t.upiId}</p>`:''}
+          <p style="font-size:10px;color:#606890">ID: ${t.txId}</p>
+        </div>
+        <div class="hist-amt">
+          <div class="amount">-₹${t.amount.toFixed(2)}</div>
+          <div class="status status-${t.status}">${t.status.charAt(0).toUpperCase()+t.status.slice(1)}</div>
+        </div>
+      </div>`).join('');
+  }catch(e){}
+}
+function showErr(m){const el=document.getElementById('errorMsg');el.textContent=m;el.style.display='block';document.getElementById('successMsg').style.display='none';}
+</script>
+</body>
+</html>
